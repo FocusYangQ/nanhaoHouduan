@@ -1,13 +1,12 @@
-package com.example.demo.Component.testGuangbiao;
+package com.example.demo.Component.Guangbiao;
 
-import java.io.IOException;
 import java.net.Socket;
 
 public class shutdown {
     public void shutdown() throws Exception {
 
         String host = "10.10.100.254";
-        int port = 8899;
+        int port = 8989;
 
         Socket socket = new Socket(host,port);
 

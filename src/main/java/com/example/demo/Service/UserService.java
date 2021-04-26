@@ -13,9 +13,6 @@ public class UserService {
     @Resource
     private UserRepository userRepository;
 
-//    public User findUser(User user) {
-//
-//    }
 
     public User getNameById(int id){
         return userRepository.getOne(id);

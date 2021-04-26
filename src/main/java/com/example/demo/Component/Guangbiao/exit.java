@@ -1,7 +1,6 @@
-package com.example.demo.Component.testGuangbiao;
+package com.example.demo.Component.Guangbiao;
 
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
 import static java.lang.Thread.sleep;
 
@@ -16,12 +15,12 @@ public class exit {
 //            sleep(2);
 //        }
 
-        send s = new send();
-        s.send(socket,message);
-
-        sleep(1000);
-        receive receive = new receive();
-        receive.receive(socket);
-
+//        send s = new send();
+//        s.send(socket,message);
+//
+//        sleep(1000);
+//        receive receive = new receive();
+//        receive.receive(socket);
+//
     }
 }

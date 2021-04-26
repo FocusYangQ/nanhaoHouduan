@@ -1,4 +1,4 @@
-package com.example.demo.Component.testGuangbiao;
+package com.example.demo.Component.Guangbiao;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,7 +17,6 @@ public class readFile {
                     String lineTxt = null;
                     String lineResult = null;
                     while ((lineTxt = br.readLine()) != null) {
-                        System.out.println(lineTxt);
                         lineResult += lineTxt;
                     }
                     br.close();

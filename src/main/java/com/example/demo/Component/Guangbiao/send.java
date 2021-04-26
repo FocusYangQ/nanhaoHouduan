@@ -1,4 +1,4 @@
-package com.example.demo.Component.testGuangbiao;
+package com.example.demo.Component.Guangbiao;
 
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -19,11 +19,6 @@ public class send {
             System.out.println();
             System.out.println("  发送失败");
         }
-//        System.out.println();
         System.out.println("  发送成功");
-
-//        receive r = new receive();
-//        r.receive(socket);
-
     }
 }
