@@ -11,8 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
+import java.net.ConnectException;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLOutput;
 import java.util.Map;
 
 import static java.lang.Thread.sleep;
@@ -37,21 +40,33 @@ public class SocketController {
     BufferedInputStream bufferedInputStream;
     BufferedOutputStream bufferedOutputStream;
 
+    //构建整个答题流程的Socket
     @RequestMapping("/socket")
-    public boolean connect() throws IOException, InterruptedException {
+    public boolean connect() {
 
         String host = ipService.find_ip();
         System.out.println(host);
-        socket = new Socket(host,port);
-        inputStream=socket.getInputStream();
-        bufferedInputStream = new BufferedInputStream(inputStream);
-        outputStream=socket.getOutputStream();
-        bufferedOutputStream = new BufferedOutputStream(outputStream);
+        try{
+            socket = new Socket(host,port);
+        } catch (Exception e){
+            System.out.println("建立socket失败");
+            return false;
+        }
+        try{
+            inputStream=socket.getInputStream();
+            bufferedInputStream = new BufferedInputStream(inputStream);
+            outputStream=socket.getOutputStream();
+            bufferedOutputStream = new BufferedOutputStream(outputStream);
+        } catch (IOException e){
+            System.out.println("建立Socket输入输出流及缓冲区失败");
+            return false;
+        }
         System.out.println("建立连接成功");
 
         return true;
     }
 
+    //设置模板
     @RequestMapping(value="/set_tem",method= RequestMethod.POST)
     @ResponseBody
     public boolean set_tem (@RequestParam Map map) throws Exception {
@@ -62,11 +77,18 @@ public class SocketController {
         sleep(900);
         System.out.print("接收数据:");
         byte[] bytes = new byte[1024];
-        inputStream.read(bytes);
-        for(int i=0;i<bytes.length;i++) {
-            if(bytes[i] == 0) break;
-            System.out.print((char)bytes[i]);
-        }
+        String res = "";
+        System.out.println("执行到这里了么");
+        res += inputStream.read(bytes);
+        System.out.println(res);
+//        for(int i=0;i<bytes.length;i++) {
+//            if(bytes[i] == 0) break;
+//            res+=(char)bytes[i];
+//            System.out.print((char)bytes[i]);
+//        }
+//        if(res.equals("EN16")){
+//            return false;
+//        }
         System.out.println();
         System.out.println();
 
@@ -94,6 +116,7 @@ public class SocketController {
         return true;
     }
 
+    //设置模板失败后，重新设置模板指令
     @RequestMapping(value="/setTemAnother",method= RequestMethod.POST)
     @ResponseBody
     public boolean set_temAnother (@RequestParam Map map) throws Exception {
@@ -147,6 +170,7 @@ public class SocketController {
         return true;
     }
 
+    //设置标准答案读卡1次
     @RequestMapping("/read_once")
     public String read_once() throws Exception {
 
@@ -167,9 +191,12 @@ public class SocketController {
         }
         System.out.println(res);
 
+        //读光标阅读季缓冲区start
         outputStream.write("r A 0001 2048/".getBytes(StandardCharsets.UTF_8));
+        //读光标阅读季缓冲区end
         sleep(200);
-        //接收数据模块
+
+        //接收数据start
         System.out.print("接收数据:");
         res = "";
         bytes = new byte[1024];
@@ -179,7 +206,7 @@ public class SocketController {
             res += (char)bytes[i];
         }
         System.out.println(res);
-
+        //接收数据end
 
         System.out.println("卡的数据量：" + res.substring(3,6));
         System.out.println("卡的类型：" + res.substring(6,7));
@@ -188,17 +215,18 @@ public class SocketController {
         String need_handle = need_first_handle.substring(0,need_first_handle.indexOf("..."));
         System.out.println(need_handle);
 
-        //向数据库中写标准答案
+        //向数据库中写标准答案start
         std_ansService.deleteall();
         Std_ans std_ans = new Std_ans();
         std_ans.setStd_ans(need_handle);
         std_ansService.save(std_ans);
         System.out.println("标准答案成功设置");
+        //向数据库中写标准答案end
 
         String last = "";
         Score score = new Score();
 
-        //标准答案呈现
+        //标准答案呈现start
         for(int i=0;i<need_handle.length()/10;i++){
             int j = i*10+10;
             int k=i*10;
@@ -206,6 +234,7 @@ public class SocketController {
             last = last + "<p>" +  k +"~" + j + "题：" +need_handle.substring(i*10,i*10+5) + "&nbsp&nbsp" + need_handle.substring(i*10+5,i*10+10) +"</p>";
             System.out.println(last);
         }
+        //标准答案呈现end
 
         System.out.println();
         System.out.println("==============标准答案设置结束==============");
@@ -216,8 +245,12 @@ public class SocketController {
 
     }
 
+    //循环读卡
     @RequestMapping("/another")
     public JSONArray another() throws Exception {
+
+        JSONArray jsonArray = new JSONArray();
+        Score score = new Score();
 
         System.out.println("==================开始本次读卡================");
         System.out.println();
@@ -233,6 +266,8 @@ public class SocketController {
             if(bytes[i] == 0) break;
             res += (char)bytes[i];
         }
+
+        //轮询算法start
         int k=0;
         if(!res.equals("ENEN")){
             for(k=0;k<=250;k++){
@@ -244,16 +279,21 @@ public class SocketController {
                 if(res.equals("ENEN")){
                    break;
                 }
-                sleep(20);
+                else if(res.equals("EN16")){
+                    score.setName("16");
+                    score.setScore(0);
+                    score.setAnswer("");
+                    score.setStu_id("");
+                    jsonArray.add(score);
+                    return jsonArray;
+                }
+                sleep(20);//轮询周期是20ms
             }
         }
         System.out.print("接收数据:" + res);
         System.out.println("");
 
-        JSONArray jsonArray = new JSONArray();
-        Score score = new Score();
-
-        if(k==251){
+        if(k==251){//轮询失败，没有收到预期结果
             score.setName("false");
             score.setScore(0);
             score.setAnswer("");
@@ -261,6 +301,7 @@ public class SocketController {
             jsonArray.add(score);
             return jsonArray;
         }
+        //轮询算法end
 
         System.out.println("发送数据：r A 0001 2048/");
         sleep(200);
