@@ -78,17 +78,17 @@ public class SocketController {
         System.out.print("接收数据:");
         byte[] bytes = new byte[1024];
         String res = "";
-        System.out.println("执行到这里了么");
-        res += inputStream.read(bytes);
+        inputStream.read(bytes);
+
+        //循环读取缓冲区字符start
+        for(int i=0;i<bytes.length;i++) {
+            if(bytes[i] == 0) break;
+            System.out.print((char)bytes[i]);
+        }
+        //循环读取缓冲区字符end
+
         System.out.println(res);
-//        for(int i=0;i<bytes.length;i++) {
-//            if(bytes[i] == 0) break;
-//            res+=(char)bytes[i];
-//            System.out.print((char)bytes[i]);
-//        }
-//        if(res.equals("EN16")){
-//            return false;
-//        }
+
         System.out.println();
         System.out.println();
 
@@ -128,10 +128,14 @@ public class SocketController {
         System.out.print("接收数据:");
         byte[] bytes = new byte[1024];
         inputStream.read(bytes);
+
+        //循环读取缓冲区字符start
         for(int i=0;i<bytes.length;i++) {
             if(bytes[i] == 0) break;
             System.out.print((char)bytes[i]);
         }
+        //循环读取缓冲区字符end
+
         System.out.println();
         System.out.println();
 
@@ -189,7 +193,7 @@ public class SocketController {
             if(bytes[i] == 0) break;
             res += (char)bytes[i];
         }
-        System.out.println(res);
+        System.out.println("接收返回数据：" + res);
 
         //读光标阅读季缓冲区start
         outputStream.write("r A 0001 2048/".getBytes(StandardCharsets.UTF_8));
@@ -259,6 +263,7 @@ public class SocketController {
         outputStream.write("R A/".getBytes(StandardCharsets.UTF_8));
         sleep(200);
 
+        //循环读取接收缓冲区start
         String res = "";
         byte[] bytes = new byte[1024];
         inputStream.read(bytes);
@@ -266,6 +271,7 @@ public class SocketController {
             if(bytes[i] == 0) break;
             res += (char)bytes[i];
         }
+        //循环读取接收缓冲区end
 
         //轮询算法start
         int k=0;
@@ -306,6 +312,7 @@ public class SocketController {
         System.out.println("发送数据：r A 0001 2048/");
         sleep(200);
         outputStream.write("r A 0001 2048/".getBytes(StandardCharsets.UTF_8));
+
         //接收数据模块
         System.out.print("接收数据:");
         res = "";
@@ -315,24 +322,64 @@ public class SocketController {
             if(bytes[i] == 0) break;
             res += (char)bytes[i];
         }
-        System.out.println(res);
+        System.out.println(res);    //输出所有接收到的数据
 
-        int int_score = 0;
-        String card_sum = res.substring(2,6);
-        System.out.println("卡的数据量：" + card_sum);
-        String card_sort = res.substring(6,7);
-        System.out.println("卡的类型：" + card_sort);
-        String stu_id = res.substring(12,16);
-        System.out.println("该学生的学号：" + stu_id);
-        String ans_tem = res.substring(17);
-        System.out.println();
-        String ans = ans_tem.substring(0, ans_tem.indexOf("."));
-        System.out.println("答案：" + ans);
+//try catch 模板
+//        try{
+//
+//        } catch (Exception e){
+//            System.out.println("截取卡的数据量error");
+//        }
+
+        String card_sum = "";
+        try{
+            //读取卡的数据量start
+            card_sum = res.substring(2,6);
+            System.out.println("卡的数据量：" + card_sum);
+            //读取卡的数据量end
+        } catch (Exception e){
+            System.out.println("截取卡的数据量error");
+        }
+
+        String card_sort = "";
+        try{
+            //读取卡的类型start
+            card_sort = res.substring(6,7);
+            System.out.println("卡的类型：" + card_sort);
+            //读取卡的类型end
+        } catch (Exception e){
+            System.out.println("截取卡的类型error");
+        }
+
+        String stu_id = "";
+        try{
+            //读取学生的学号start
+            stu_id = res.substring(12,16);
+            System.out.println("该学生的学号：" + stu_id);
+            //读取学生的学号end
+        } catch (Exception e){
+            System.out.println("截取学生的学号error");
+        }
+
+        String ans = "";
+        try{
+            //截取学生答案start
+            String ans_tem = res.substring(17);
+            System.out.println();
+            ans = ans_tem.substring(0, ans_tem.indexOf("."));
+            System.out.println("答案：" + ans);
+            //截取学生答案end
+        } catch (Exception e){
+            System.out.println("截取卡的答案error");
+        }
+
+
         String need_handle = ans;
         String last = "";
 
         System.out.println();
         System.out.println();
+
         System.out.println("=====开始处理数据=====");
         String std_ans = std_ansService.findStd_ans();
         System.out.println("标准答案：" + std_ans);
@@ -340,8 +387,8 @@ public class SocketController {
         char[] std_ans_charArray = std_ans.toCharArray();
         char[] ans_charArray = need_handle.toCharArray();
 
-
         String name = "";
+        int int_score = 0;
         for(int i=0;i<std_ans_charArray.length;i++){
             if(std_ans_charArray[i]==ans_charArray[i]){
                 int_score++;
