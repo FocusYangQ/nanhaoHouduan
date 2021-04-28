@@ -45,7 +45,7 @@ public class SocketController {
     public boolean connect() {
 
         String host = ipService.find_ip();
-        System.out.println(host);
+        System.out.println("当前IP地址是：" + host);
         try{
             socket = new Socket(host,port);
         } catch (Exception e){
@@ -181,9 +181,9 @@ public class SocketController {
 
         System.out.println("==============设置标准答案==============");
         System.out.println();
+        System.out.println("发送数据：R A/");
         outputStream.write("R A/".getBytes(StandardCharsets.UTF_8));
         sleep(900);
-
 
         //循环访问缓冲区
         String res = "";
@@ -194,6 +194,10 @@ public class SocketController {
             res += (char)bytes[i];
         }
         System.out.println("接收返回数据：" + res);
+        if(res.equals("ENEN16") || res.equals("EN16")){
+            System.out.println("无卡error");
+            return "noCard";
+        }
 
         //读光标阅读季缓冲区start
         outputStream.write("r A 0001 2048/".getBytes(StandardCharsets.UTF_8));
@@ -261,56 +265,54 @@ public class SocketController {
         System.out.println("=====开始读卡=====");
         System.out.println("发送数据：R A/");
         outputStream.write("R A/".getBytes(StandardCharsets.UTF_8));
-        sleep(200);
+        sleep(1);
 
         //循环读取接收缓冲区start
         String res = "";
         byte[] bytes = new byte[1024];
-        inputStream.read(bytes);
-        for(int i=0;i<bytes.length;i++) {
-            if(bytes[i] == 0) break;
-            res += (char)bytes[i];
-        }
-        //循环读取接收缓冲区end
 
-        //轮询算法start
-        int k=0;
-        if(!res.equals("ENEN")){
-            for(k=0;k<=250;k++){
-                inputStream.read(bytes);
-                for(int j=0;j<bytes.length;j++) {
-                    if(bytes[j] == 0) break;
-                    res += (char)bytes[j];
+        //最多轮询5s
+        int flag = 0;
+        for(int i = 0; i < 5000; i ++){
+            inputStream.read(bytes);
+            for(int j = 0; j < bytes.length; j++){
+                if(bytes[j] == 0) {
+                    break;
                 }
-                if(res.equals("ENEN")){
-                   break;
-                }
-                else if(res.equals("EN16")){
-                    score.setName("16");
-                    score.setScore(0);
-                    score.setAnswer("");
-                    score.setStu_id("");
-                    jsonArray.add(score);
-                    return jsonArray;
-                }
-                sleep(20);//轮询周期是20ms
+                res += (char)bytes[j];
+            }
+            if(!res.equals("EN")){
+                System.out.println(res);
+            }
+
+            if(res.equals("EN16")){
+                System.out.println("读卡失败，请检查阅读机中是否仍有答题卡");
+                score.setName("EN16");
+                score.setScore(0);
+                score.setAnswer("");
+                score.setStu_id("");
+                jsonArray.add(score);
+                return jsonArray;
+            } else if(res.equals("ENEN")){
+                break;
+            } else if(res.equals("EN05")){
+                System.out.println("读卡失败，出现A传感器检测点线错");
+                score.setName("EN05");
+                score.setScore(0);
+                score.setAnswer("");
+                score.setStu_id("");
+                jsonArray.add(score);
+                return jsonArray;
+            }
+            sleep(1);
+            if(i == 249){
+                flag = 1;
             }
         }
-        System.out.print("接收数据:" + res);
-        System.out.println("");
 
-        if(k==251){//轮询失败，没有收到预期结果
-            score.setName("false");
-            score.setScore(0);
-            score.setAnswer("");
-            score.setStu_id("");
-            jsonArray.add(score);
-            return jsonArray;
-        }
-        //轮询算法end
 
         System.out.println("发送数据：r A 0001 2048/");
-        sleep(200);
+        sleep(1);
         outputStream.write("r A 0001 2048/".getBytes(StandardCharsets.UTF_8));
 
         //接收数据模块
