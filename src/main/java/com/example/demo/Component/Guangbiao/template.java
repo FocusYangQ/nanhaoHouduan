@@ -20,17 +20,20 @@ public class template {
                 send s = new send();
                 receive r = new receive();
                 s.send(thisSocket,"S a.txt/");
-                sleep(200);
+                sleep(2);
                 if(r.receive(thisSocket,inputStream).equals("EN")){
                     while ((lineTxt = br.readLine()) != null){
 
                         if(lineTxt.equals("")){
-                            sleep(5);
+                            sleep(1);
                             continue;
                         } else {
+                            if(lineTxt.charAt(0)  == ';'){
+                                break;
+                            }
                             lineTxt = lineTxt.substring(0,lineTxt.indexOf("/")) + "/";
                             s.send(thisSocket,lineTxt);
-                            sleep(5);
+                            sleep(1);
                             if(!r.receive(thisSocket,inputStream).equals("EN")){
                             System.out.println("返回值错误");
                             break;
