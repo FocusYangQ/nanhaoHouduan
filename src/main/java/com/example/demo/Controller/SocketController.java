@@ -96,12 +96,9 @@ public class SocketController {
                 }
                 res += (char)bytes[j];
             }
-            if(!res.equals("EN")){
-                System.out.println("循环接收内容" + res);
-            }
             if(res.equals("ENEN")){
                 System.out.println("接收返回值ENEN成功");
-                return true;
+                break;
             }
             sleep(1);
             if(i == 249){
@@ -117,47 +114,6 @@ public class SocketController {
     @RequestMapping(value="/set_tem",method= RequestMethod.POST)
     @ResponseBody
     public String set_tem (@RequestParam Map map) throws Exception {
-
-
-        byte[] bytes = new byte[1024];
-        String res = "";
-
-        //循环读取接收缓冲区start
-        //最多轮询5s
-        int flag = 0;
-        for(int i = 0; i < 5000; i ++){
-            inputStream.read(bytes);
-            for(int j = 0; j < bytes.length; j++){
-                if(bytes[j] == 0) {
-                    break;
-                }
-                res += (char)bytes[j];
-            }
-            if(!res.equals("EN")){
-                System.out.println("循环接收内容" + res);
-            }
-            if(res.equals("EN16")){
-                System.out.println("读卡失败，请检查阅读机中是否仍有答题卡");
-                return "EN16";
-            } else if(res.equals("ENEN")){
-                System.out.println("接收数据：ENEN");
-                break;
-            } else if(res.equals("EN05")){
-                System.out.println("读卡失败，出现A传感器检测点线错");
-                return "EN15";
-            } else if(res.equals("EN09")){
-                System.out.println("读卡失败，出现A传感器同步框计数值超界");
-                return "EN09";
-            }
-            sleep(1);
-            if(i == 249){
-                flag = 1;
-            }
-        }
-        //循环读取接收缓冲区end
-
-        System.out.println();
-        System.out.println();
 
         System.out.println("==============设置模板测试==============");
         //设置模板
