@@ -67,14 +67,57 @@ public class SocketController {
         return true;
     }
 
+    @RequestMapping("/online")
+    public boolean online() throws InterruptedException {
+
+        System.out.println("===============连接测试===============");
+        try{
+            outputStream.write("ONLINE/".getBytes(StandardCharsets.UTF_8));
+        } catch (Exception e){
+            System.out.println("发送ONLINE失败");
+            return false;
+        }
+        System.out.println("发送数据：ONLINE/成功");
+        byte[] bytes = new byte[1024];
+        String res = "";
+
+        //循环读取接收缓冲区start
+        //最多轮询5s
+        int flag = 0;
+        for(int i = 0; i < 5000; i ++){
+            try{
+                inputStream.read(bytes);
+            } catch (Exception e){
+                System.out.println("读取缓冲区失败");
+            }
+            for(int j = 0; j < bytes.length; j++){
+                if(bytes[j] == 0) {
+                    break;
+                }
+                res += (char)bytes[j];
+            }
+            if(!res.equals("EN")){
+                System.out.println("循环接收内容" + res);
+            }
+            if(res.equals("ENEN")){
+                System.out.println("接收返回值ENEN成功");
+                return true;
+            }
+            sleep(1);
+            if(i == 249){
+                flag = 1;
+            }
+        }
+        //循环读取接收缓冲区end
+
+        return true;
+    }
+
     //设置模板
     @RequestMapping(value="/set_tem",method= RequestMethod.POST)
     @ResponseBody
     public String set_tem (@RequestParam Map map) throws Exception {
 
-        System.out.println("===============连接测试===============");
-        outputStream.write("ONLINE/".getBytes(StandardCharsets.UTF_8));
-        System.out.println("发送数据：ONLINE/");
 
         byte[] bytes = new byte[1024];
         String res = "";
@@ -111,6 +154,7 @@ public class SocketController {
                 flag = 1;
             }
         }
+        //循环读取接收缓冲区end
 
         System.out.println();
         System.out.println();
