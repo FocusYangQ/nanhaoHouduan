@@ -15,7 +15,10 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import static java.lang.Thread.sleep;
 
@@ -197,6 +200,87 @@ public class SocketController {
         System.out.println();
         System.out.println();
         return true;
+    }
+
+    @RequestMapping("/readTem")
+    public String readTem(@RequestParam Map map){
+
+        String res = "";
+        String s = (String) map.keySet().iterator().next();
+        System.out.println(s);
+        String s_for_use =s.substring(0, s.indexOf("型"));
+        String file_path = "G:\\Form\\" + s_for_use + ".txt";
+        System.out.println(file_path);
+        getTem r = new getTem();
+        try{
+            res = r.getTem(file_path);
+        } catch (Exception e){
+            System.out.println("读取模板失败");
+        }
+        System.out.println(res);
+
+        return res;
+    }
+
+    @RequestMapping("/saveTem")
+    public String saveTem(@RequestBody Map map){
+
+        String first = (String)map.get("temName");
+        String second = (String)map.get("TemText");
+//        System.out.println("first:" + first);
+//        System.out.println("second:" + second);
+//        System.out.println("打印map：" + map);
+//        String[] str = {"firstTest","secondTest"};
+//        int j=0;
+
+//        Set set = map.keySet();
+//        System.out.println("打印set：" + set);
+//        Iterator<String> it = set.iterator();
+//        String strt = "";
+//        while(it.hasNext()){
+//            str[ j ++] = (String)it.next();
+//            System.out.println(str[ j - 1]);
+//        }
+//        j = 0;
+
+        //str[0]是文件名
+        //str[1]是数据
+        String path = "G:\\Form\\";
+        System.out.println();
+        //检查是否存在同名文件start
+        File file1 = new File(path);
+        File[] array = file1.listFiles();
+        ArrayList<String> list = new ArrayList<String>();
+        for(int i=0;i<array.length;i++){
+            if(array[i].isFile()){
+                if(array[i].getName().equals((String)map.get("temName") + ".txt")){
+                    System.out.println("文件名重复，文件已存在");
+                    return "2"; //文件重名
+                }
+            }
+        }
+        //检查是否存在同名文件end
+
+        String textPath = path + (String)map.get("temName") + ".txt";
+        System.out.println(textPath);
+        String content = (String)map.get("TemText");
+        System.out.println(content);
+        File file = new File(textPath);
+        try{
+            file.createNewFile();
+        } catch (Exception e){
+            System.out.println("创建文件失败");
+            return "1"; //创建文件失败
+        }
+
+        try{
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(content.getBytes());
+        } catch (Exception e){
+            System.out.println("向文件写入内容失败");
+        }
+
+        return "0";
     }
 
     //设置标准答案读卡1次
