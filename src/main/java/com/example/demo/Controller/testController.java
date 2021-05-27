@@ -29,4 +29,12 @@ public class testController {
         return true;
     }
 
+    @RequestMapping("/importTem")
+    public boolean importTem(){
+
+
+
+        return true;
+    }
+
 }

@@ -227,24 +227,7 @@ public class SocketController {
 
         String first = (String)map.get("temName");
         String second = (String)map.get("TemText");
-//        System.out.println("first:" + first);
-//        System.out.println("second:" + second);
-//        System.out.println("打印map：" + map);
-//        String[] str = {"firstTest","secondTest"};
-//        int j=0;
 
-//        Set set = map.keySet();
-//        System.out.println("打印set：" + set);
-//        Iterator<String> it = set.iterator();
-//        String strt = "";
-//        while(it.hasNext()){
-//            str[ j ++] = (String)it.next();
-//            System.out.println(str[ j - 1]);
-//        }
-//        j = 0;
-
-        //str[0]是文件名
-        //str[1]是数据
         String path = "G:\\Form\\";
         System.out.println();
         //检查是否存在同名文件start
