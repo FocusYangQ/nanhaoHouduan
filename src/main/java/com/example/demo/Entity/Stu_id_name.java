@@ -10,8 +10,8 @@ import javax.persistence.*;
 public class Stu_id_name {
 
     @Id
-    @Column(name="stu_id")
-    private String stu_id;
+    @Column(name="stuId")
+    private String stuId;
 
     @Column(name="name")
     private String name;

@@ -1,5 +1,8 @@
 package com.example.demo.Controller;
 
+import com.example.demo.Entity.Ip;
+import com.example.demo.Service.IpService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -9,6 +12,9 @@ import java.util.Map;
 @CrossOrigin
 @RestController
 public class UDPTestController {
+
+    @Autowired
+    IpService ipService;
 
     private String sendStr = "NHII-INTERNETEREADER";
     private String netAddress = "";
@@ -64,5 +70,20 @@ public class UDPTestController {
         System.out.println("探测到的ip是："+ ip);
         if(ip=="noResult"){ return "未探测到ip";}
         else return ip;
+    }
+
+    @RequestMapping(value="/set_ip",method=RequestMethod.POST)
+    public boolean set_ip(@RequestParam Map map) throws Exception {
+
+        ipService.delete_all();
+
+        String s = (String) map.keySet().iterator().next();
+        System.out.println(s);
+
+        Ip ip = new Ip();
+        ip.setIp(s);
+        ipService.save_ip(ip);
+
+        return true;
     }
 }

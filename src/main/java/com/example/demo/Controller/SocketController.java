@@ -222,50 +222,6 @@ public class SocketController {
         return res;
     }
 
-    @RequestMapping("/saveTem")
-    public String saveTem(@RequestBody Map map){
-
-        String first = (String)map.get("temName");
-        String second = (String)map.get("TemText");
-
-        String path = "G:\\Form\\";
-        System.out.println();
-        //检查是否存在同名文件start
-        File file1 = new File(path);
-        File[] array = file1.listFiles();
-        ArrayList<String> list = new ArrayList<String>();
-        for(int i=0;i<array.length;i++){
-            if(array[i].isFile()){
-                if(array[i].getName().equals((String)map.get("temName") + ".txt")){
-                    System.out.println("文件名重复，文件已存在");
-                    return "2"; //文件重名
-                }
-            }
-        }
-        //检查是否存在同名文件end
-
-        String textPath = path + (String)map.get("temName") + ".txt";
-        System.out.println(textPath);
-        String content = (String)map.get("TemText");
-        System.out.println(content);
-        File file = new File(textPath);
-        try{
-            file.createNewFile();
-        } catch (Exception e){
-            System.out.println("创建文件失败");
-            return "1"; //创建文件失败
-        }
-
-        try{
-            FileOutputStream fos = new FileOutputStream(file);
-            fos.write(content.getBytes());
-        } catch (Exception e){
-            System.out.println("向文件写入内容失败");
-        }
-
-        return "0";
-    }
-
     //设置标准答案读卡1次
     @RequestMapping("/read_once")
     public String read_once() throws Exception {

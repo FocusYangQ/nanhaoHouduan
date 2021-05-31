@@ -6,17 +6,18 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name="cardtem")
-public class cardTem {
+@Table(name="test")
+public class test {
 
     @Id
     @Column(name="id")
     @GeneratedValue(strategy=GenerationType.AUTO)
     private int id;
 
-    @Column(name="card_type")
-    private String card_type;
+    @Column(name="name")
+    private String name;
 
-    @Column(name="content")
-    private String content;
+    @Column(name="pwd")
+    private String pwd;
+
 }

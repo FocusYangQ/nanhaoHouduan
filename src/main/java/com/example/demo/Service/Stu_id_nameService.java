@@ -31,7 +31,7 @@ public class Stu_id_nameService {
         List<Stu_id_name> name_entity = stu_id_nameRepository.findAll();
         for(int i=0;i<name_entity.size();i++){
             tem = name_entity.get(i);
-            if(tem.getStu_id().equals(stuid)){
+            if(tem.getStuId().equals(stuid)){
                 name = tem.getName();
             }
         }
