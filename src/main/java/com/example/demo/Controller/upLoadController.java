@@ -13,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 
+@CrossOrigin
+@RestController
 public class upLoadController {
 
     @Autowired
@@ -66,12 +68,11 @@ public class upLoadController {
     @ResponseBody
     public boolean uploadTable(@RequestBody Object object){
 
-        System.out.println("测试执行");
         System.out.println(object);
-        JSONArray jsonArray = JSONArray.fromObject(object);
-        System.out.println(jsonArray);
-        Stu_id_name stu_id_name = new Stu_id_name();
-        for(int i = 0 ; i < jsonArray.size() ; i ++){
+        JSONArray jsonArray = JSONArray.fromObject( object ) ;
+        System.out.println( jsonArray ) ;
+        Stu_id_name stu_id_name = new Stu_id_name( ) ;
+        for ( int i = 0 ; i < jsonArray.size() ; i ++ ) {
             stu_id_name.setName((String) jsonArray.getJSONObject(i).get("name"));
             stu_id_name.setStuId((String) jsonArray.getJSONObject(i).get("stuId"));
             System.out.println("stu_id_name:  " + stu_id_name);

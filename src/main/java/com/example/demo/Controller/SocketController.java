@@ -1,6 +1,7 @@
 package com.example.demo.Controller;
 
 import com.example.demo.Component.Guangbiao.*;
+import com.example.demo.Component.rollAlgo;
 import com.example.demo.Entity.Score;
 import com.example.demo.Entity.Std_ans;
 import com.example.demo.Service.IpService;
@@ -15,10 +16,7 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import static java.lang.Thread.sleep;
 
@@ -43,6 +41,12 @@ public class SocketController {
     BufferedInputStream bufferedInputStream;
     BufferedOutputStream bufferedOutputStream;
     String CardType = "";
+    int score [ ] = new int [ 110 ] ;
+    char ans [ ] = new char [ 110 ] ;
+    int corNum [ ] = new int [ 110 ] ;
+    int scoreSum = 0 ;
+    int perNum = 0 ;
+    int sum = 0 ;
 
     //构建整个答题流程的Socket
     @RequestMapping("/socket")
@@ -81,7 +85,7 @@ public class SocketController {
             return false;
         }
         System.out.println("发送数据：ONLINE/成功");
-        byte[] bytes = new byte[1024];
+        byte[] bytes = new byte [ 1024 ] ;
         String res = "";
 
         //循环读取接收缓冲区start
@@ -222,6 +226,11 @@ public class SocketController {
         return res;
     }
 
+    @RequestMapping("/setScore")
+    public void setScore(){
+
+    }
+
     //设置标准答案读卡1次
     @RequestMapping("/read_once")
     public String read_once() throws Exception {
@@ -329,6 +338,31 @@ public class SocketController {
                     System.out.println("出现读卡的异常");
                 }
                 break;
+            case "50T":
+                System.out.println("执行case50T");
+                try{
+                    System.out.println("卡的数据量：" + res.substring(2,6));
+                } catch (Exception e){
+                    System.out.println("出现读卡的数量异常");
+                }
+                try{
+                    System.out.println("卡的类型：" + res.substring(6,7));
+                } catch (Exception e){
+                    System.out.println("出现读卡类型异常");
+                }
+                try{
+                    System.out.println("学生的学号：" + res.substring(7,15));
+                } catch (Exception e){
+                    System.out.println("出现读学号异常");
+                }
+                try{
+                    System.out.println(res.substring(17,67));
+                    ans = res.substring(17,67);
+                    System.out.println("卡的选项：" + ans);
+                } catch (Exception e){
+                    System.out.println("出现读卡的异常");
+                }
+                break;
             case "85T":
                 System.out.println("执行case85T");
                 try{
@@ -410,6 +444,34 @@ public class SocketController {
                         System.out.println(last);
                     }
                     break;
+//                case 5:
+//                    System.out.println("执行switch语句中case5");
+//                    for(int i = 0; i <= 4; i ++) {
+//                        int j = i * 10 + 10;
+//                        int k = i * 10;
+//                        if (k == 0) k = 1;
+//                        if(i == 5 ){
+//                            last = last + "<p>" + k + "~" + (k + 5) + "题：" + ans.substring(i * 10, i * 10 + 5) + "</p>";
+//                        } else {
+//                            last = last + "<p>" + k + "~" + j + "题：" + ans.substring(i * 10, i * 10 + 5) + "&nbsp&nbsp" + ans.substring(i * 10 + 5, i * 10 + 10) + "</p>";
+//                        }
+//                        System.out.println(last);
+//                    }
+//                    break;
+                case 5:
+                    System.out.println("执行switch语句中case5");
+                    for(int i = 0; i <= 4; i ++) {
+                        int j = i * 10 + 10;
+                        int k = i * 10;
+                        if (k == 0) k = 1;
+                        if(i == 5 ){
+                            last = last +  k + "~" + (k + 5) + "题： " + ans.substring(i * 10, i * 10 + 5) + "\n";
+                        } else {
+                            last = last  + k + "~" + j + "题：" + ans.substring(i * 10, i * 10 + 5) + "  " + ans.substring(i * 10 + 5, i * 10 + 10) + "\n";
+                        }
+                        System.out.println(last);
+                    }
+                    break;
                 case 8:
                     System.out.println("执行switch语句中case8");
                     for(int i = 0; i <= 8; i ++) {
@@ -457,21 +519,16 @@ public class SocketController {
     @RequestMapping("/another")
     public JSONArray another() throws Exception {
 
+
+
+
         JSONArray jsonArray = new JSONArray();
         Score score = new Score();
         String res = "";
         byte[] bytes = new byte[1024];
 
-//        System.out.println("==================清空缓冲区开始================");
-        socket.setSoTimeout(5000);
-//        for(int i = 0; i < 3; i++){
-//            try{
-//                inputStream.read(bytes);
-//            } catch (Exception e){
-//                System.out.println("第" + i + "次尝试读取缓冲区");
-//            }
-//        }
-//        System.out.println("==================清空缓冲区结束================");
+
+
 
         System.out.println("==================开始本次读卡================");
         System.out.println();
@@ -483,58 +540,70 @@ public class SocketController {
 
         //循环读取接收缓冲区start
         //最多轮询5s
-        int flag = 0;
-        for(int i = 0; i < 5000; i ++){
-            inputStream.read(bytes);
-            for(int j = 0; j < bytes.length; j++){
-                if(bytes[j] == 0) {
-                    break;
-                }
-                res += (char)bytes[j];
-            }
-            if(!res.equals("EN")){
-                System.out.println(res);
-            }
+//        int flag = 0;
+//        for(int i = 0; i < 5000; i ++){
+//            inputStream.read(bytes);
+//            for(int j = 0; j < bytes.length; j++){
+//                if(bytes[j] == 0) {
+//                    break;
+//                }
+//                res += (char)bytes[j];
+//            }
+//            if(!res.equals("EN")){
+//                System.out.println(res);
+//            }
+//
+//            if(res.equals("EN16")){
+//                System.out.println("读卡失败，请检查阅读机中是否仍有答题卡");
+//                score.setName("EN16");
+//                score.setScore(0);
+//                score.setAnswer("");
+//                score.setStu_id("");
+//                jsonArray.add(score);
+//                return jsonArray;
+//            } else if(res.equals("ENEN")){
+//                break;
+//            } else if(res.equals("EN05")){
+//                System.out.println("读卡失败，出现A传感器检测点线错");
+//                score.setName("EN05");
+//                score.setScore(0);
+//                score.setAnswer("");
+//                score.setStu_id("");
+//                jsonArray.add(score);
+//                return jsonArray;
+//            } else if(res.equals("EN09")){
+//                System.out.println("读卡失败，出现A传感器同步框计数值超界");
+//                score.setName("EN09");
+//                score.setScore(0);
+//                score.setAnswer("");
+//                score.setStu_id("");
+//                jsonArray.add(score);
+//                return jsonArray;
+//            }
+//            sleep(1);
+//            if(i == 249){
+//                flag = 1;
+//            }
+//        }
 
-            if(res.equals("EN16")){
-                System.out.println("读卡失败，请检查阅读机中是否仍有答题卡");
-                score.setName("EN16");
-                score.setScore(0);
-                score.setAnswer("");
-                score.setStu_id("");
-                jsonArray.add(score);
-                return jsonArray;
-            } else if(res.equals("ENEN")){
-                break;
-            } else if(res.equals("EN05")){
-                System.out.println("读卡失败，出现A传感器检测点线错");
-                score.setName("EN05");
-                score.setScore(0);
-                score.setAnswer("");
-                score.setStu_id("");
-                jsonArray.add(score);
-                return jsonArray;
-            } else if(res.equals("EN09")){
-                System.out.println("读卡失败，出现A传感器同步框计数值超界");
-                score.setName("EN09");
-                score.setScore(0);
-                score.setAnswer("");
-                score.setStu_id("");
-                jsonArray.add(score);
-                return jsonArray;
-            }
-            sleep(1);
-            if(i == 249){
-                flag = 1;
-            }
-        }
+
+
+        rollAlgo rollAlgo = new rollAlgo();
+        //轮询数据缓冲区
+        String resRollAlgo = rollAlgo.rollAlgo(inputStream);
+
+
+
 
         System.out.println("发送数据：r A 0001 2048/");
         sleep(1);
         outputStream.write("r A 0001 2048/".getBytes(StandardCharsets.UTF_8));
 
+
+
+
         //接收数据模块
-        System.out.print("接收数据:");
+        System.out.print("接收到的数据:  ");
         res = "";
         bytes = new byte[1024];
         inputStream.read(bytes);
@@ -544,68 +613,25 @@ public class SocketController {
         }
         System.out.println(res);    //输出所有接收到的数据
 
-//try catch 模板
-//        try{
-//
-//        } catch (Exception e){
-//            System.out.println("截取卡的数据量error");
-//        }
 
-//        String card_sum = "";
-//        try{
-//            //读取卡的数据量start
-//            card_sum = res.substring(2,6);
-//            System.out.println("卡的数据量：" + card_sum);
-//            //读取卡的数据量end
-//        } catch (Exception e){
-//            System.out.println("截取卡的数据量error");
-//        }
-//
-//        String card_sort = "";
-//        try{
-//            //读取卡的类型start
-//            card_sort = res.substring(6,7);
-//            System.out.println("卡的类型：" + card_sort);
-//            //读取卡的类型end
-//        } catch (Exception e){
-//            System.out.println("截取卡的类型error");
-//        }
-//
-//        String stu_id = "";
-//        try{
-//            //读取学生的学号start
-//            stu_id = res.substring(12,16);
-//            System.out.println("该学生的学号：" + stu_id);
-//            //读取学生的学号end
-//        } catch (Exception e){
-//            System.out.println("截取学生的学号error");
-//        }
-//
-//        String ans = "";
-//        try{
-//            //截取学生答案start
-//            String ans_tem = res.substring(17);
-//            System.out.println();
-//            ans = ans_tem.substring(0, ans_tem.indexOf("."));
-//            System.out.println("答案：" + ans);
-//            //截取学生答案end
-//        } catch (Exception e){
-//            System.out.println("截取卡的答案error");
-//        }
-//
-//
-//        String need_handle = ans;
-//        String last = "";
 
 
         System.out.println();
         System.out.println();
+
+
+
 
         String stuId = "";
         String ans = "";
-        System.out.println(CardType);
-        switch (CardType){
-            case "40T":
+        System.out.println( CardType );
+
+
+
+
+        switch ( CardType ) {
+
+            case "40T" :
                 try{
                     System.out.println("卡的数据量：" + res.substring(2,6));
                 } catch (Exception e){
@@ -628,8 +654,37 @@ public class SocketController {
                 } catch (Exception e){
                     System.out.println("读取答案异常");
                 }
+
                 break;
-            case "43lu":
+
+            case "43lu" :
+
+                try{
+                    System.out.println("卡的数据量：" + res.substring(3,6));
+                } catch (Exception e){
+                    System.out.println("出现读卡的数量异常");
+                }
+                try{
+                    System.out.println("卡的类型：" + res.substring(6,7));
+                } catch (Exception e){
+                    System.out.println("出现读卡类型异常");
+                }
+                try{
+                    stuId = res.substring(7,17);
+                    System.out.println("学号：" + stuId);
+                } catch (Exception e){
+                    System.out.println("出现读卡类型异常");
+                }
+                try{
+                    ans = res.substring(22,127);
+                    System.out.println("卡的选项：" + ans);
+                } catch (Exception e){
+                    System.out.println("读取答案异常");
+                }
+
+                break;
+
+            case "50lu" :
                 try{
                     System.out.println("卡的数据量：" + res.substring(3,6));
                 } catch (Exception e){
@@ -653,54 +708,33 @@ public class SocketController {
                     System.out.println("读取答案异常");
                 }
                 break;
-            case "50lu":
+
+            case "50T" :
+
                 try{
                     System.out.println("卡的数据量：" + res.substring(3,6));
                 } catch (Exception e){
                     System.out.println("出现读卡的数量异常");
                 }
                 try{
-                    System.out.println("卡的类型：" + res.substring(6,7));
+                    System.out.println( " 卡的类型 ： " + res.substring(6,7));
                 } catch (Exception e){
-                    System.out.println("出现读卡类型异常");
+                    System.out.println( " 出现读卡类型异常 " ) ;
                 }
                 try{
-                    stuId = res.substring(7,17);
-                    System.out.println("学号：" + stuId);
-                } catch (Exception e){
-                    System.out.println("出现读卡类型异常");
+                    stuId = res.substring ( 7 , 17 ) ;
+                    System.out.println( " 学号：" + stuId ) ;
+                } catch ( Exception e ) {
+                    System.out.println( " 出现读卡类型异常 " ) ;
                 }
                 try{
-                    ans = res.substring(22,127);
-                    System.out.println("卡的选项：" + ans);
-                } catch (Exception e){
-                    System.out.println("读取答案异常");
+                    ans = res.substring( 17 , res.indexOf ("EN" ,3 ) ) ;
+                    System.out.println( " 卡的选项： " + ans ) ;
+                } catch (Exception e) {
+                    System.out.println( " 读取答案异常 " ) ;
                 }
-                break;
-            case "50T":
-                try{
-                    System.out.println("卡的数据量：" + res.substring(3,6));
-                } catch (Exception e){
-                    System.out.println("出现读卡的数量异常");
-                }
-                try{
-                    System.out.println("卡的类型：" + res.substring(6,7));
-                } catch (Exception e){
-                    System.out.println("出现读卡类型异常");
-                }
-                try{
-                    stuId = res.substring(7,17);
-                    System.out.println("学号：" + stuId);
-                } catch (Exception e){
-                    System.out.println("出现读卡类型异常");
-                }
-                try{
-                    ans = res.substring(22,127);
-                    System.out.println("卡的选项：" + ans);
-                } catch (Exception e){
-                    System.out.println("读取答案异常");
-                }
-                break;
+                break ;
+
             case "85T":
                 try{
                     System.out.println("卡的数据量：" + res.substring(3,6));
@@ -719,7 +753,7 @@ public class SocketController {
                     System.out.println("出现读卡类型异常");
                 }
                 try{
-                    ans = res.substring(17,res.indexOf("EN",3));
+                    ans = res.substring( 17 , res.indexOf("EN",3));
                     System.out.println("卡的选项：" + ans);
                 } catch (Exception e){
                     System.out.println("读取答案异常");
@@ -776,8 +810,23 @@ public class SocketController {
                 //数据处理结束
                 break;
         }
-        
+
+
+        System.out.println( ) ;
+        System.out.println( ) ;
+        System.out.println( ) ;
+
+
         System.out.println("=====开始处理数据=====");
+
+
+
+        System.out.println();
+        System.out.println();
+        System.out.println();
+
+
+
         String std_ans = std_ansService.findStd_ans();
         System.out.println("标准答案：" + std_ans);
         System.out.println("该答题卡答案：" + ans);
@@ -786,9 +835,9 @@ public class SocketController {
 
         String name = "";
         int int_score = 0;
-        for(int i=0;i<std_ans_charArray.length;i++){
-            if(std_ans_charArray[i]==ans_charArray[i]){
-                int_score++;
+        for(int i=0;i<std_ans_charArray.length;i++) {
+            if ( std_ans_charArray[i]==ans_charArray[i] ) {
+                int_score ++ ;
             }
         }
         System.out.println("该答题卡分数：" + int_score);
@@ -804,6 +853,11 @@ public class SocketController {
 
         System.out.println("传送的数据" + jsonArray);
 
+
+
+
+        System.out.println();
+        System.out.println();
         System.out.println();
         System.out.println("==================本次读卡结束================");
         System.out.println();
@@ -813,8 +867,178 @@ public class SocketController {
     }
 
 
+
+    @RequestMapping("/setStdAns")
+    @ResponseBody
+
+    public boolean setStdAns( @RequestParam Map<Object,Object> map ) {
+
+
+
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println( "全部数据:" );
+        System.out.println();
+        System.out.println(map);
+        System.out.println();
+        System.out.println();
+        System.out.println();
+
+
+
+        String str = (String) map.keySet().iterator().next();
+        System.out.println( "第一部分数据:");
+        System.out.println();
+        System.out.println( str );
+        System.out.println();
+        System.out.println();
+        System.out.println();
+
+
+
+        String ansOri = str.substring( 0 , str.indexOf( "---" ) );
+        String scoreOri = str.substring( str.indexOf( "---" ) + 3 );
+
+        String ansRemainPart = ansOri ;
+        String ansUsePart = " " ;
+
+
+
+        System.out.println( "答案:");
+        System.out.println();
+        System.out.println( ansOri );
+        System.out.println();
+        System.out.println();
+        System.out.println();
+
+
+        System.out.println( "分数:");
+        System.out.println( scoreOri );
+        System.out.println();
+        System.out.println();
+        System.out.println();
+
+
+
+        int j = 0 ;
+
+        for ( int i = 0 ; i < 5 ; i ++ ) {
+
+            ansRemainPart = ansRemainPart.substring( ansRemainPart.indexOf("题") + 2 );
+
+            if ( i != 4 ) {
+                ansUsePart = ansRemainPart.substring( 0 , ansRemainPart.indexOf("题") - 5 );
+            } else {
+                ansUsePart = ansRemainPart ;
+            }
+
+            char [ ] arr = ansUsePart.toCharArray( ) ;
+
+            for ( int k = 0 ; k < ansUsePart.length() ; k ++ ) {
+                ans [ j ++ ] = arr [ k ] ;
+            }
+
+        }
+
+        for ( int k = 0 ; k < 110 ; k ++ ) {
+            System.out.print(  ans [ k ] );
+        }
+
+        System.out.println("设置答案成功");
+        System.out.println();
+        System.out.println();
+        System.out.println();
+
+
+
+        System.out.println( "检查scoreOri" + scoreOri );
+        System.out.println();
+
+
+
+        String remainStr = scoreOri ;
+
+
+
+        for ( int i = 1 ; i <= 2 ; i ++ ) {
+
+            String useToScore = remainStr.substring( 0 , remainStr.indexOf( "分" ) + 1 ) ;
+            System.out.println( useToScore );
+            remainStr = scoreOri.substring( scoreOri.indexOf( "分" ) + 1 ) ;
+
+
+
+            System.out.println( " 剩下的部分 " );
+            System.out.println( remainStr );
+            System.out.println();
+            System.out.println();
+
+
+            String useToNum = useToScore.substring( 0 , useToScore.indexOf( "题" ) ) ;
+            System.out.println( useToNum );
+            System.out.println();
+            System.out.println();
+            System.out.println();
+
+
+
+//        int i = Integer.parseInt(s);
+            String firstStr = useToNum.substring( 0 , useToNum.indexOf( "~" ) ) ;
+
+
+
+            System.out.println( "检查提取出来的第一组字符" );
+//        去除回车：s = s.replace('\n','');
+            firstStr = firstStr.replace( '\n','0' ) ;
+            int first = Integer.parseInt( firstStr );
+            System.out.println( "第一个数据：  " + first );
+
+
+
+            String secondStr = useToNum.substring( useToNum.indexOf( "~" ) + 1 );
+            int second = Integer.parseInt( secondStr );
+            System.out.println( "第二个数据：  " + second );
+
+
+
+            String scoreToCom = useToScore.substring( useToScore.indexOf( "分" ) - 2 , useToScore.indexOf( "分" ) );
+            scoreToCom = scoreToCom.replace( ' ' , '0' ) ;
+            int scoreToUse = Integer.parseInt( scoreToCom ) ;
+            System.out.println( "分数：  " + scoreToUse );
+
+
+
+            int ii = first ;
+
+            for (  ; ii <= second ; ii ++ ) {
+
+                score [ ii ] = scoreToUse ;
+
+            }
+
+
+            System.out.println( " 现在答案设置为： " );
+
+            for ( int k = 1 ; k < 110 ; k ++ ) {
+
+                System.out.print( score [ k ] );
+
+            }
+
+        }
+
+
+        return true;
+
+    }
+
+
+
     @RequestMapping("/clear")
+
     public boolean clearBuf() throws SocketException {
+
         System.out.println("==================清空缓冲区开始================");
         socket.setSoTimeout(5000);
         byte[] bytes = new byte[1024];
@@ -827,5 +1051,27 @@ public class SocketController {
         }
         System.out.println("==================清空缓冲区结束================");
         return true;
+
     }
+
+
+
+    @RequestMapping ( "/setSum" )
+    public boolean setSum ( int tem ) {
+
+
+        
+
+        sum = tem ;
+
+
+
+
+        return true ;
+
+    }
+
+
+
+
 }
