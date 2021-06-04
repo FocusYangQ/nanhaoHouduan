@@ -207,6 +207,7 @@ public class SocketController {
     }
 
     @RequestMapping("/readTem")
+
     public String readTem(@RequestParam Map map){
 
         String res = "";
@@ -234,21 +235,129 @@ public class SocketController {
     //设置标准答案读卡1次
     @RequestMapping("/read_once")
     public String read_once() throws Exception {
+
+
+
         System.out.println("==============设置标准答案==============");
         System.out.println();
         System.out.println("发送数据：R A/");
         outputStream.write("R A/".getBytes(StandardCharsets.UTF_8));
-        sleep(900);
+
+
 
         //循环访问缓冲区
         String res = "";
         byte[] bytes = new byte[1024];
+
+
+
+        for( int i = 0 ; i < 5000; i ++) {
+
+            try {
+
+                inputStream.read(bytes);
+
+            } catch (Exception e) {
+
+                System.out.println("读缓冲区失败");
+
+            }
+
+            for (int j = 0; j < bytes.length; j++) {
+
+                if (bytes[j] == 0) {
+                    break;
+                }
+                res += (char) bytes[j];
+
+            }
+
+            if ( res.equals("ENEN") ) {
+
+                System.out.println( "接收返回数据:  ENEN" );
+                break ;
+
+            }
+
+            if ( i == 4999 ) {
+
+                System.out.println( "接收返回数据错误" );
+
+            }
+
+            sleep( 1 );
+
+        }
+
+
+
+
+        System.out.println("发送数据：r A 0001 2048/");
+        sleep(1);
+        outputStream.write("r A 0001 2048/".getBytes(StandardCharsets.UTF_8));
+
+
+
+        //接收数据模块
+        System.out.println("接收到的数据:  ");
+        res = "";
+        bytes = new byte[1024];
+
+
+
+
+        //接收数据模块
+        System.out.print("接收到的数据:  ");
+        res = "";
+        bytes = new byte[1024];
         inputStream.read(bytes);
-        for(int i=0;i<bytes.length;i++) {
+        for(int i = 0; i < bytes.length; i ++) {
             if(bytes[i] == 0) break;
             res += (char)bytes[i];
         }
-        System.out.println("接收返回数据：" + res);
+        System.out.println(res);    //输出所有接收到的数据
+
+
+
+
+        System.out.println();
+        System.out.println();
+
+
+
+
+//        for ( int i = 0 ; i < 5000 ; i ++ ) {
+//
+//            System.out.println( "执行测试1" );
+//
+//            inputStream.read( bytes );
+//            for ( int j = 0; j < bytes.length ; j ++ ) {
+//
+//                if ( bytes [ j ] == 0 ) break ;
+//                res += (char) bytes [ j ] ;
+//
+//            }
+//
+//            sleep( 1 );
+//
+//            if ( i == 4999 ) {
+//
+//                System.out.println( "读取缓冲区失败" );
+//
+//            }
+//
+//            if ( res.indexOf( "EN" , 3 ) != -1 ) {
+//
+//                break ;
+//
+//            }
+//
+//        }
+
+        System.out.println( "测试执行2" );
+        System.out.println( res );    //输出所有接收到的数据
+
+
 
         //读卡异常错误处理start
         if(res.equals("ENEN16") || res.equals("EN16")){
@@ -427,7 +536,8 @@ public class SocketController {
         Score score = new Score();
 
         //标准答案呈现start
-        System.out.println(ans.length());
+
+        System.out.println( "答案的长度是：  " + ans.length( ) );
         try{
             switch (ans.length()/10){
                 case 4:
@@ -441,7 +551,6 @@ public class SocketController {
                         } else {
                             last = last + "<p>" + k + "~" + j + "题：" + ans.substring(i * 10, i * 10 + 5) + "&nbsp&nbsp" + ans.substring(i * 10 + 5, i * 10 + 10) + "</p>";
                         }
-                        System.out.println(last);
                     }
                     break;
 //                case 5:
@@ -469,7 +578,6 @@ public class SocketController {
                         } else {
                             last = last  + k + "~" + j + "题：" + ans.substring(i * 10, i * 10 + 5) + "  " + ans.substring(i * 10 + 5, i * 10 + 10) + "\n";
                         }
-                        System.out.println(last);
                     }
                     break;
                 case 8:
@@ -483,7 +591,6 @@ public class SocketController {
                         } else {
                             last = last + "<p>" + k + "~" + j + "题：" + ans.substring(i * 10, i * 10 + 5) + "&nbsp&nbsp" + ans.substring(i * 10 + 5, i * 10 + 10) + "</p>";
                         }
-                        System.out.println(last);
                     }
                     break;
                 case 10:
@@ -497,13 +604,23 @@ public class SocketController {
                         } else {
                             last = last + "<p>" + k + "~" + j + "题：" + ans.substring(i * 10, i * 10 + 5) + "&nbsp&nbsp" + ans.substring(i * 10 + 5, i * 10 + 10) + "</p>";
                         }
-                        System.out.println(last);
                     }
                     break;
             }
         } catch (Exception e){
             System.out.println("设置答案出错");
         }
+
+
+        System.out.println();
+        System.out.println();
+        System.out.println(last);
+        System.out.println();
+        System.out.println();
+        System.out.println();
+
+
+
         //标准答案呈现end
 
         System.out.println();
@@ -945,15 +1062,11 @@ public class SocketController {
             System.out.print(  ans [ k ] );
         }
 
-        System.out.println("设置答案成功");
+        System.out.println("答案设置成功");
         System.out.println();
         System.out.println();
         System.out.println();
 
-
-
-        System.out.println( "检查scoreOri" + scoreOri );
-        System.out.println();
 
 
 
@@ -964,22 +1077,22 @@ public class SocketController {
         for ( int i = 1 ; i <= 2 ; i ++ ) {
 
             String useToScore = remainStr.substring( 0 , remainStr.indexOf( "分" ) + 1 ) ;
-            System.out.println( useToScore );
+//            System.out.println( useToScore );
             remainStr = scoreOri.substring( scoreOri.indexOf( "分" ) + 1 ) ;
 
 
 
-            System.out.println( " 剩下的部分 " );
-            System.out.println( remainStr );
-            System.out.println();
-            System.out.println();
+//            System.out.println( " 剩下的部分 " );
+//            System.out.println( remainStr );
+//            System.out.println();
+//            System.out.println();
 
 
             String useToNum = useToScore.substring( 0 , useToScore.indexOf( "题" ) ) ;
-            System.out.println( useToNum );
-            System.out.println();
-            System.out.println();
-            System.out.println();
+//            System.out.println( useToNum );
+//            System.out.println();
+//            System.out.println();
+//            System.out.println();
 
 
 
@@ -988,24 +1101,24 @@ public class SocketController {
 
 
 
-            System.out.println( "检查提取出来的第一组字符" );
+//            System.out.println( "检查提取出来的第一组字符" );
 //        去除回车：s = s.replace('\n','');
             firstStr = firstStr.replace( '\n','0' ) ;
             int first = Integer.parseInt( firstStr );
-            System.out.println( "第一个数据：  " + first );
+//            System.out.println( "第一个数据：  " + first );
 
 
 
             String secondStr = useToNum.substring( useToNum.indexOf( "~" ) + 1 );
             int second = Integer.parseInt( secondStr );
-            System.out.println( "第二个数据：  " + second );
+//            System.out.println( "第二个数据：  " + second );
 
 
 
             String scoreToCom = useToScore.substring( useToScore.indexOf( "分" ) - 2 , useToScore.indexOf( "分" ) );
             scoreToCom = scoreToCom.replace( ' ' , '0' ) ;
             int scoreToUse = Integer.parseInt( scoreToCom ) ;
-            System.out.println( "分数：  " + scoreToUse );
+//            System.out.println( "分数：  " + scoreToUse );
 
 
 
@@ -1018,16 +1131,19 @@ public class SocketController {
             }
 
 
-            System.out.println( " 现在答案设置为： " );
-
-            for ( int k = 1 ; k < 110 ; k ++ ) {
-
-                System.out.print( score [ k ] );
-
-            }
 
         }
 
+
+
+        for ( int k = 1 ; k < 110 ; k ++ ) {
+
+            System.out.print( score [ k ] );
+
+        }
+
+        System.out.println();
+        System.out.println( " 答案设置成功 " );
 
         return true;
 
@@ -1057,18 +1173,20 @@ public class SocketController {
 
 
     @RequestMapping ( "/setSum" )
-    public boolean setSum ( int tem ) {
+    @ResponseBody
+
+    public boolean setSum ( @RequestParam Map map ) {
 
 
-        
-
-        sum = tem ;
+//        System.out.println( map );
+        String s = (String) map.keySet().iterator().next();
+        sum = Integer.parseInt( s ) ;
+        System.out.println( "读卡的总量：  " + sum );
 
 
 
 
         return true ;
-
     }
 
 
