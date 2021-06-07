@@ -128,4 +128,20 @@ public class temController {
         return "0";
     }
 
+
+
+    @RequestMapping ( "/saveResult" )
+
+    public boolean saveResult ( @RequestBody Map map ) {
+
+        System.out.println ( map ) ;
+
+        return true ;
+
+    }
+
+
+
+
+
 }

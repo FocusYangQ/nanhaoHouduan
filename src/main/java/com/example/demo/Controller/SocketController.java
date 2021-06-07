@@ -9,13 +9,19 @@ import com.example.demo.Service.Std_ansService;
 import com.example.demo.Service.Stu_id_nameService;
 import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import net.sf.json.JSONArray;
+import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.*;
 import java.io.*;
+import java.math.BigDecimal;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static java.lang.Thread.sleep;
@@ -33,6 +39,7 @@ public class SocketController {
     @Autowired
     Stu_id_nameService stu_id_nameService;
 
+
     int port = 8989;
     String host;
     Socket socket;
@@ -47,6 +54,9 @@ public class SocketController {
     int scoreSum = 0 ;
     int perNum = 0 ;
     int sum = 0 ;
+    String std_ans = "" ;
+    int corRateInt [ ] = new int [ 110 ] ;
+    double corRateDou [ ] = new double[ 110 ] ;
 
     //构建整个答题流程的Socket
     @RequestMapping("/socket")
@@ -301,7 +311,7 @@ public class SocketController {
         //接收数据模块
         System.out.println("接收到的数据:  ");
         res = "";
-        bytes = new byte[1024];
+        bytes = new byte [ 1024 ] ;
 
 
 
@@ -309,7 +319,7 @@ public class SocketController {
         //接收数据模块
         System.out.print("接收到的数据:  ");
         res = "";
-        bytes = new byte[1024];
+        bytes = new byte [ 1024 ] ;
         inputStream.read(bytes);
         for(int i = 0; i < bytes.length; i ++) {
             if(bytes[i] == 0) break;
@@ -732,7 +742,6 @@ public class SocketController {
 
 
 
-
         System.out.println();
         System.out.println();
 
@@ -900,6 +909,7 @@ public class SocketController {
                     System.out.println("读取答案异常");
                 }
                 break;
+
             case "105T":
                 //数据处理开始
                 try{
@@ -944,7 +954,14 @@ public class SocketController {
 
 
 
-        String std_ans = std_ansService.findStd_ans();
+        if ( std_ans.equals( "" ) ) {
+
+            std_ans = std_ansService.findStd_ans();
+
+        }
+
+
+
         System.out.println("标准答案：" + std_ans);
         System.out.println("该答题卡答案：" + ans);
         char[] std_ans_charArray = std_ans.toCharArray();
@@ -952,18 +969,33 @@ public class SocketController {
 
         String name = "";
         int int_score = 0;
-        for(int i=0;i<std_ans_charArray.length;i++) {
-            if ( std_ans_charArray[i]==ans_charArray[i] ) {
+        for( int i = 0 ; i < std_ans_charArray.length ; i ++ ) {
+
+            if ( std_ans_charArray[ i ] == ans_charArray [ i ] && ans_charArray [ i ] != '.' ) {
+
+                corRateInt [ i ] ++ ;
                 int_score ++ ;
+
             }
+
         }
         System.out.println("该答题卡分数：" + int_score);
+
+        scoreSum += int_score ;
+
+
+
+        System.out.println( "scoreSum:  " + scoreSum );
+
+
+
+
         score.setScore(int_score);
         score.setAnswer(ans);
         System.out.println("该学生的学号：" + stuId);
         System.out.println(stuId);
         score.setStu_id(stuId);
-        name = stu_id_nameService.find_name_by_id(stuId);
+        name = stu_id_nameService.find_name_by_id( stuId ) ;
         System.out.println("该学生的姓名：" + name);
         score.setName(name);
         jsonArray.add(score);
@@ -1122,6 +1154,7 @@ public class SocketController {
 
 
 
+
             int ii = first ;
 
             for (  ; ii <= second ; ii ++ ) {
@@ -1129,8 +1162,6 @@ public class SocketController {
                 score [ ii ] = scoreToUse ;
 
             }
-
-
 
         }
 
@@ -1179,6 +1210,14 @@ public class SocketController {
 
 
 //        System.out.println( map );
+
+        System.out.println();
+        System.out.println();
+        System.out.println();
+
+
+
+
         String s = (String) map.keySet().iterator().next();
         sum = Integer.parseInt( s ) ;
         System.out.println( "读卡的总量：  " + sum );
@@ -1189,6 +1228,65 @@ public class SocketController {
         return true ;
     }
 
+
+
+
+    @RequestMapping ( "/averageScore" )
+    @ResponseBody
+
+    public String averageScore (  ) {
+
+
+        System.out.println( "scoreSum:  " + Double.valueOf( scoreSum ) );
+        System.out.println( "sum:  " + Double.valueOf( sum ) );
+
+        double resNum = Double.valueOf( scoreSum ) / Double.valueOf( sum ) ;
+
+        System.out.println( "double类型：   " + resNum ) ;
+//        String strTem = String.valueOf( resNum ) ;
+//        System.out.println( "字符串类型：   " + strTem ) ;
+
+        System.out.println( "保留4位小数的resNum：  " + String.format ( "%.4f" , resNum )  ) ;
+
+
+        return String.format ( "%.4f" , resNum )  ;
+
+    }
+
+
+
+
+    @RequestMapping ( "/corRate" )
+    @ResponseBody
+    public Map < Integer , String > corRate ( ) {
+
+        Map<Integer, String > map = new HashMap <Integer, String > ();
+
+
+        // a是用来暂存CardType判断值的
+        String a = CardType.substring( 0 , 2 ) ;
+        System.out.println( a );
+
+
+        if ( a == "10" ) {
+
+            a = "105" ;
+
+        }
+
+        int a1 = Integer.parseInt( a ) ;
+
+        for ( int i = 0 ; i < a1 ; i ++ ) {
+
+        double tem = (double) (corRateInt [ i ] * 1.0 / sum) ;;
+
+        map.put( i , String.format( "%.4f" , tem ) ) ;
+
+        }
+
+        return map ;
+
+    }
 
 
 
