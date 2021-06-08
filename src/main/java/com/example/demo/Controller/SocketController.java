@@ -665,53 +665,6 @@ public class SocketController {
         sleep(1);
         System.out.println("接收数据：");
 
-        //循环读取接收缓冲区start
-        //最多轮询5s
-//        int flag = 0;
-//        for(int i = 0; i < 5000; i ++){
-//            inputStream.read(bytes);
-//            for(int j = 0; j < bytes.length; j++){
-//                if(bytes[j] == 0) {
-//                    break;
-//                }
-//                res += (char)bytes[j];
-//            }
-//            if(!res.equals("EN")){
-//                System.out.println(res);
-//            }
-//
-//            if(res.equals("EN16")){
-//                System.out.println("读卡失败，请检查阅读机中是否仍有答题卡");
-//                score.setName("EN16");
-//                score.setScore(0);
-//                score.setAnswer("");
-//                score.setStu_id("");
-//                jsonArray.add(score);
-//                return jsonArray;
-//            } else if(res.equals("ENEN")){
-//                break;
-//            } else if(res.equals("EN05")){
-//                System.out.println("读卡失败，出现A传感器检测点线错");
-//                score.setName("EN05");
-//                score.setScore(0);
-//                score.setAnswer("");
-//                score.setStu_id("");
-//                jsonArray.add(score);
-//                return jsonArray;
-//            } else if(res.equals("EN09")){
-//                System.out.println("读卡失败，出现A传感器同步框计数值超界");
-//                score.setName("EN09");
-//                score.setScore(0);
-//                score.setAnswer("");
-//                score.setStu_id("");
-//                jsonArray.add(score);
-//                return jsonArray;
-//            }
-//            sleep(1);
-//            if(i == 249){
-//                flag = 1;
-//            }
-//        }
 
 
 

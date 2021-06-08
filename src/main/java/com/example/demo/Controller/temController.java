@@ -94,6 +94,8 @@ public class temController {
         System.out.println();
         //检查是否存在同名文件start
         File file1 = new File(path);
+
+        //查找文件是否重复
         File[] array = file1.listFiles();
         ArrayList<String> list = new ArrayList<String>();
         for(int i=0;i<array.length;i++){
@@ -131,16 +133,44 @@ public class temController {
 
 
     @RequestMapping ( "/saveResult" )
+    @ResponseBody
 
-    public boolean saveResult ( @RequestBody Map map ) {
+    public boolean saveResult ( @RequestParam Map map ) {
 
-        System.out.println ( map ) ;
+        String res = ( String ) map.keySet().iterator().next();
+        System.out.println( res );
+
+
+
+
+        String textPath = "G:\\Form\\res.txt" ;
+        File file = new File( textPath ) ;
+
+
+
+
+
+        try{
+            file.createNewFile();
+        } catch (Exception e){
+            System.out.println("创建文件失败");
+            return false ; //创建文件失败
+        }
+
+        try{
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(res.getBytes());
+        } catch (Exception e){
+            System.out.println("向文件写入内容失败");
+        }
+
+
+
+
 
         return true ;
 
     }
-
-
 
 
 
