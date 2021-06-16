@@ -12,11 +12,14 @@ public class rollAlgo {
         int flag = 0;
         String res = "";
         byte[] bytes = new byte[1024];
-        for(int i = 0; i < 5000; i ++){
-            try{
+        for(int i = 0; i < 5000; i ++) {
+
+            try {
                 inputStream.read(bytes);
-            } catch (Exception e){
+            } catch ( Exception e ) {
+
                 System.out.println("读缓冲区失败");
+
             }
 
             for(int j = 0; j < bytes.length; j++){
@@ -40,6 +43,11 @@ public class rollAlgo {
             } else if(res.equals("EN09")){
                 System.out.println("读卡失败，出现A传感器同步框计数值超界");
                 return "EN09";
+            } else if ( res.equals( "EN07" ) ) {
+
+                System.out.println("读卡失败，出现A传感器卡纸(同步信号)错");
+                return "EN07";
+
             }
             sleep(1);
             if(i == 249){

@@ -39,7 +39,6 @@ public class SocketController {
     @Autowired
     Stu_id_nameService stu_id_nameService;
 
-
     int port = 8989;
     String host;
     Socket socket;
@@ -48,7 +47,7 @@ public class SocketController {
     BufferedInputStream bufferedInputStream;
     BufferedOutputStream bufferedOutputStream;
     String CardType = "";
-    int score [ ] = new int [ 110 ] ;
+    int scoreRecord [ ] = new int [ 110 ] ;
     char ans [ ] = new char [ 110 ] ;
     int corNum [ ] = new int [ 110 ] ;
     int scoreSum = 0 ;
@@ -58,9 +57,21 @@ public class SocketController {
     int corRateInt [ ] = new int [ 110 ] ;
     double corRateDou [ ] = new double[ 110 ] ;
 
-    //构建整个答题流程的Socket
+    //构建整个答题流程的Socket测试
     @RequestMapping("/socket")
     public boolean connect() {
+
+
+
+        for ( int i = 0 ; i < 110 ; i ++ ) {
+
+            scoreRecord [ i ] = 0 ;
+            corRateInt [ i ] = 0 ;
+            corRateDou [ i ] = 0 ;
+
+        }
+
+
 
         host = ipService.find_ip();
         System.out.println("当前IP地址是：" + host);
@@ -237,10 +248,10 @@ public class SocketController {
         return res;
     }
 
-    @RequestMapping("/setScore")
-    public void setScore(){
-
-    }
+//    @RequestMapping("/setScore")
+//    public void setScore(){
+//
+//    }
 
     //设置标准答案读卡1次
     @RequestMapping("/read_once")
@@ -287,6 +298,10 @@ public class SocketController {
                 System.out.println( "接收返回数据:  ENEN" );
                 break ;
 
+            } else if ( res.equals( "EN16" ) ) {
+
+                    return "noCard" ;
+
             }
 
             if ( i == 4999 ) {
@@ -309,7 +324,6 @@ public class SocketController {
 
 
         //接收数据模块
-        System.out.println("接收到的数据:  ");
         res = "";
         bytes = new byte [ 1024 ] ;
 
@@ -336,35 +350,6 @@ public class SocketController {
 
 
 
-//        for ( int i = 0 ; i < 5000 ; i ++ ) {
-//
-//            System.out.println( "执行测试1" );
-//
-//            inputStream.read( bytes );
-//            for ( int j = 0; j < bytes.length ; j ++ ) {
-//
-//                if ( bytes [ j ] == 0 ) break ;
-//                res += (char) bytes [ j ] ;
-//
-//            }
-//
-//            sleep( 1 );
-//
-//            if ( i == 4999 ) {
-//
-//                System.out.println( "读取缓冲区失败" );
-//
-//            }
-//
-//            if ( res.indexOf( "EN" , 3 ) != -1 ) {
-//
-//                break ;
-//
-//            }
-//
-//        }
-
-        System.out.println( "测试执行2" );
         System.out.println( res );    //输出所有接收到的数据
 
 
@@ -556,27 +541,10 @@ public class SocketController {
                         int j = i * 10 + 10;
                         int k = i * 10;
                         if (k == 0) k = 1;
-                        if(i == 4 ){
-                            last = last + "<p>" + k + "~" + (k + 5) + "题：" + ans.substring(i * 10, i * 10 + 5) + "</p>";
-                        } else {
-                            last = last + "<p>" + k + "~" + j + "题：" + ans.substring(i * 10, i * 10 + 5) + "&nbsp&nbsp" + ans.substring(i * 10 + 5, i * 10 + 10) + "</p>";
-                        }
+                        last = last  + k + "~" + j + "题：" + ans.substring(i * 10, i * 10 + 5) + "  " + ans.substring(i * 10 + 5, i * 10 + 10) + "\n" ;
                     }
                     break;
-//                case 5:
-//                    System.out.println("执行switch语句中case5");
-//                    for(int i = 0; i <= 4; i ++) {
-//                        int j = i * 10 + 10;
-//                        int k = i * 10;
-//                        if (k == 0) k = 1;
-//                        if(i == 5 ){
-//                            last = last + "<p>" + k + "~" + (k + 5) + "题：" + ans.substring(i * 10, i * 10 + 5) + "</p>";
-//                        } else {
-//                            last = last + "<p>" + k + "~" + j + "题：" + ans.substring(i * 10, i * 10 + 5) + "&nbsp&nbsp" + ans.substring(i * 10 + 5, i * 10 + 10) + "</p>";
-//                        }
-//                        System.out.println(last);
-//                    }
-//                    break;
+
                 case 5:
                     System.out.println("执行switch语句中case5");
                     for(int i = 0; i <= 4; i ++) {
@@ -584,7 +552,7 @@ public class SocketController {
                         int k = i * 10;
                         if (k == 0) k = 1;
                         if(i == 5 ){
-                            last = last +  k + "~" + (k + 5) + "题： " + ans.substring(i * 10, i * 10 + 5) + "\n";
+                            last = last +  k + "~" + (k + 5) + "题： " + ans.substring(i * 10, i * 10 + 5) + "\n" ;
                         } else {
                             last = last  + k + "~" + j + "题：" + ans.substring(i * 10, i * 10 + 5) + "  " + ans.substring(i * 10 + 5, i * 10 + 10) + "\n";
                         }
@@ -648,7 +616,6 @@ public class SocketController {
 
 
 
-
         JSONArray jsonArray = new JSONArray();
         Score score = new Score();
         String res = "";
@@ -671,6 +638,29 @@ public class SocketController {
         rollAlgo rollAlgo = new rollAlgo();
         //轮询数据缓冲区
         String resRollAlgo = rollAlgo.rollAlgo(inputStream);
+
+
+
+        if ( resRollAlgo.equals( "EN16" ) ) {
+
+            score.setName( resRollAlgo ) ;
+            jsonArray.add( score ) ;
+            return jsonArray ;
+
+        } else if ( resRollAlgo.equals( "EN07" ) ) {
+
+            score.setName( resRollAlgo ) ;
+            jsonArray.add( score ) ;
+            return jsonArray ;
+
+        } else if ( resRollAlgo.equals( "EN09" ) ) {
+
+            score.setName( resRollAlgo ) ;
+            jsonArray.add( score ) ;
+            return jsonArray ;
+
+        }
+
 
 
 
@@ -927,7 +917,7 @@ public class SocketController {
             if ( std_ans_charArray[ i ] == ans_charArray [ i ] && ans_charArray [ i ] != '.' ) {
 
                 corRateInt [ i ] ++ ;
-                int_score ++ ;
+                int_score += scoreRecord [ i + 1 ];
 
             }
 
@@ -939,6 +929,7 @@ public class SocketController {
 
 
         System.out.println( "scoreSum:  " + scoreSum );
+
 
 
 
@@ -965,7 +956,10 @@ public class SocketController {
         System.out.println();
         System.out.println();
 
+
         return jsonArray;
+
+
     }
 
 
@@ -1027,13 +1021,43 @@ public class SocketController {
 
         for ( int i = 0 ; i < 5 ; i ++ ) {
 
-            ansRemainPart = ansRemainPart.substring( ansRemainPart.indexOf("题") + 2 );
+            try {
+
+                ansRemainPart = ansRemainPart.substring( ansRemainPart.indexOf("题") + 2 );
+
+            } catch ( Exception e ) {
+
+                System.out.println( " 截取剩余部分失败 " );
+
+            }
+
 
             if ( i != 4 ) {
-                ansUsePart = ansRemainPart.substring( 0 , ansRemainPart.indexOf("题") - 5 );
+
+                try {
+
+                    ansUsePart = ansRemainPart.substring( 0 , ansRemainPart.indexOf("题") - 5 );
+
+                } catch ( Exception e ) {
+
+                    System.out.println( " 截取使用部分失败 " );
+
+                }
+
             } else {
+
                 ansUsePart = ansRemainPart ;
+
             }
+
+
+
+
+            System.out.println();
+            System.out.println();
+            System.out.println();
+
+
 
             char [ ] arr = ansUsePart.toCharArray( ) ;
 
@@ -1044,7 +1068,7 @@ public class SocketController {
         }
 
         for ( int k = 0 ; k < 110 ; k ++ ) {
-            System.out.print(  ans [ k ] );
+            System.out.print( ans [ k ] );
         }
 
         System.out.println("答案设置成功");
@@ -1056,78 +1080,64 @@ public class SocketController {
 
 
         String remainStr = scoreOri ;
+        String testTimes = scoreOri ;
 
+        int times = 0 ;
+        for ( int i = 0 ; i <= 20 ; i ++ ) {
 
+            try {
 
-        for ( int i = 1 ; i <= 2 ; i ++ ) {
+                if ( testTimes.indexOf( "~" ) == -1 ) {
 
-            String useToScore = remainStr.substring( 0 , remainStr.indexOf( "分" ) + 1 ) ;
-//            System.out.println( useToScore );
-            remainStr = scoreOri.substring( scoreOri.indexOf( "分" ) + 1 ) ;
+                    break ;
 
+                }
+                testTimes = testTimes.substring( testTimes.indexOf( "~" ) + 1 ) ;
+                System.out.println( testTimes.indexOf( "~" ) );
+                System.out.println( testTimes );
+                System.out.println( times );
+                times ++ ;
 
-
-//            System.out.println( " 剩下的部分 " );
-//            System.out.println( remainStr );
-//            System.out.println();
-//            System.out.println();
-
-
-            String useToNum = useToScore.substring( 0 , useToScore.indexOf( "题" ) ) ;
-//            System.out.println( useToNum );
-//            System.out.println();
-//            System.out.println();
-//            System.out.println();
-
-
-
-//        int i = Integer.parseInt(s);
-            String firstStr = useToNum.substring( 0 , useToNum.indexOf( "~" ) ) ;
-
-
-
-//            System.out.println( "检查提取出来的第一组字符" );
-//        去除回车：s = s.replace('\n','');
-            firstStr = firstStr.replace( '\n','0' ) ;
-            int first = Integer.parseInt( firstStr );
-//            System.out.println( "第一个数据：  " + first );
-
-
-
-            String secondStr = useToNum.substring( useToNum.indexOf( "~" ) + 1 );
-            int second = Integer.parseInt( secondStr );
-//            System.out.println( "第二个数据：  " + second );
-
-
-
-            String scoreToCom = useToScore.substring( useToScore.indexOf( "分" ) - 2 , useToScore.indexOf( "分" ) );
-            scoreToCom = scoreToCom.replace( ' ' , '0' ) ;
-            int scoreToUse = Integer.parseInt( scoreToCom ) ;
-//            System.out.println( "分数：  " + scoreToUse );
-
-
-
-
-            int ii = first ;
-
-            for (  ; ii <= second ; ii ++ ) {
-
-                score [ ii ] = scoreToUse ;
-
+            } catch ( Exception e ) {
+                break ;
             }
 
         }
 
 
+        System.out.println( "开始执行循环" );
+        System.out.println("======================================================================");
 
-        for ( int k = 1 ; k < 110 ; k ++ ) {
+        String useToScore = "" ;
 
-            System.out.print( score [ k ] );
-
+        for ( int i = 1 ; i <= times ; i ++ ) {
+            useToScore = remainStr.substring( 0 , remainStr.indexOf( "分" ) + 1 ) ;
+            remainStr = remainStr.substring( remainStr.indexOf( "分" ) + 1 ) ;
+            String useToNum = useToScore.substring( 0 , useToScore.indexOf( "题" ) ) ;
+            String firstStr = useToNum.substring( 0 , useToNum.indexOf( "~" ) ) ;
+            firstStr = firstStr.replace( '\n','0' ) ;
+            int first = Integer.parseInt( firstStr );
+            System.out.println( "第一个数据：  " + first );
+            String secondStr = useToNum.substring( useToNum.indexOf( "~" ) + 1 );
+            int second = Integer.parseInt( secondStr );
+            System.out.println( "第二个数据：  " + second );
+            String scoreToCom = useToScore.substring( useToScore.indexOf( "分" ) - 2 , useToScore.indexOf( "分" ) );
+            scoreToCom = scoreToCom.replace( ' ' , '0' ) ;
+            int scoreToUse = Integer.parseInt( scoreToCom ) ;
+            System.out.println( "分数：  " + scoreToUse );
+            int ii = first ;
+            for (  ; ii <= second ; ii ++ ) {
+                scoreRecord [ ii ] = scoreToUse ;
+            }
         }
 
+        for ( int k = 1 ; k < 110 ; k ++ ) {
+            System.out.print( scoreRecord [ k ] );
+        }
         System.out.println();
         System.out.println( " 答案设置成功 " );
+
+
 
         return true;
 
@@ -1140,11 +1150,11 @@ public class SocketController {
     public boolean clearBuf() throws SocketException {
 
         System.out.println("==================清空缓冲区开始================");
-        socket.setSoTimeout(5000);
         byte[] bytes = new byte[1024];
         for(int i = 0; i < 3; i++){
             try{
                 inputStream.read(bytes);
+                System.out.println( bytes ) ;
             } catch (Exception e){
                 System.out.println("第" + i + "次尝试读取缓冲区");
             }
@@ -1231,15 +1241,16 @@ public class SocketController {
 
         for ( int i = 0 ; i < a1 ; i ++ ) {
 
-        double tem = (double) (corRateInt [ i ] * 1.0 / sum) ;;
+            double tem = (double) (corRateInt [ i ] * 1.0 / sum) ;;
 
-        map.put( i , String.format( "%.4f" , tem ) ) ;
+            map.put( i , String.format( "%.4f" , tem ) ) ;
 
         }
 
         return map ;
 
     }
+
 
 
 
