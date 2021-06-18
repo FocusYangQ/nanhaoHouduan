@@ -2,14 +2,14 @@ package com.example.demo.Controller;
 
 import com.example.demo.Component.Guangbiao.*;
 import com.example.demo.Component.rollAlgo;
+import com.example.demo.Entity.Rank;
 import com.example.demo.Entity.Score;
 import com.example.demo.Entity.Std_ans;
 import com.example.demo.Service.IpService;
 import com.example.demo.Service.Std_ansService;
 import com.example.demo.Service.Stu_id_nameService;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
+import com.example.demo.Service.rankService;
 import net.sf.json.JSONArray;
-import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +38,9 @@ public class SocketController {
 
     @Autowired
     Stu_id_nameService stu_id_nameService;
+
+    @Autowired
+    rankService rankService ;
 
     int port = 8989;
     String host;
@@ -664,7 +667,6 @@ public class SocketController {
 
 
 
-
         System.out.println("发送数据：r A 0001 2048/");
         sleep(1);
         outputStream.write("r A 0001 2048/".getBytes(StandardCharsets.UTF_8));
@@ -887,6 +889,7 @@ public class SocketController {
         System.out.println( ) ;
 
 
+
         System.out.println("=====开始处理数据=====");
 
 
@@ -943,6 +946,19 @@ public class SocketController {
         System.out.println("该学生的姓名：" + name);
         score.setName(name);
         jsonArray.add(score);
+
+
+
+
+        //需要进行排序数据
+        Rank rank = new Rank( ) ;
+        rank.setName ( name ) ;
+        rank.setStuId ( stuId ) ;
+        rank.setScore ( int_score ) ;
+        rankService.saveRank ( rank ) ;
+
+
+
 
         System.out.println("传送的数据" + jsonArray);
 
@@ -1206,8 +1222,6 @@ public class SocketController {
         double resNum = Double.valueOf( scoreSum ) / Double.valueOf( sum ) ;
 
         System.out.println( "double类型：   " + resNum ) ;
-//        String strTem = String.valueOf( resNum ) ;
-//        System.out.println( "字符串类型：   " + strTem ) ;
 
         System.out.println( "保留4位小数的resNum：  " + String.format ( "%.4f" , resNum )  ) ;
 
@@ -1252,6 +1266,15 @@ public class SocketController {
     }
 
 
+    @RequestMapping ( "/forRank")
+    @ResponseBody
+    public List < Rank > rank ( ) {
+
+        List < Rank > list = rankService.findByScore ( ) ;
+
+        return list ;
+
+    }
 
 
 }

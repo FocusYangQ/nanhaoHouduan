@@ -8,21 +8,13 @@ import com.example.demo.Service.Std_ansService;
 import com.example.demo.Service.Stu_id_nameService;
 import com.example.demo.Service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sun.javaws.IconUtil;
-import jxl.read.biff.BiffException;
 import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.Socket;
 import java.util.*;
-
 import static java.lang.Thread.sleep;
 
 @CrossOrigin
