@@ -173,7 +173,7 @@ public class temController {
 
 
 
-        String textPath = "G:\\Form\\Tem\\res.txt" ;
+        String textPath = "G:\\Form\\res.txt" ;
         File file = new File( textPath ) ;
 
 
