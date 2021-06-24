@@ -34,7 +34,7 @@ public class mysqlTest {
 
         Rank rank = new Rank ( ) ;
         rank.setStuId ( "666" ) ;
-        rank.setScore ( 103 ) ;
+        rank.setScore (103.0) ;
         rank.setName( "hello world2" );
         System.out.println ( rank ) ;
         rankService.saveRank ( rank ) ;

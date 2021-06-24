@@ -7,5 +7,5 @@ public class Score {
     private String name;
     private String stu_id;
     private String answer;
-    private int score;
+    private double score;
 }

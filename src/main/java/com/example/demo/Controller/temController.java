@@ -4,6 +4,7 @@ import com.example.demo.Entity.cardTem;
 import com.example.demo.Service.Std_ansService;
 import com.example.demo.Service.Stu_id_nameService;
 import com.example.demo.Service.UserService;
+import net.sf.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,7 +41,7 @@ public class temController {
     @RequestMapping("/importTem")
     public boolean importTem(){
 
-        String path = "G:\\Form\\";
+        String path = "G:\\Form\\Tem\\";
         File file1 = new File(path);
         File[] array = file1.listFiles();
         ArrayList<String> list = new ArrayList<String>();
@@ -83,13 +84,43 @@ public class temController {
         return str;
     }
 
+
+
+
+
+    @RequestMapping("/getTemName")
+    public JSONArray getTemName(){
+
+        String path = "G:\\Form\\Tem\\";
+        System.out.println();
+        //检查是否存在同名文件start
+        File file1 = new File(path);
+
+        //查找文件是否重复
+        File[] array = file1.listFiles();
+        JSONArray jsonArray = new JSONArray() ;
+
+        for ( int i = 0 ; i < array.length ; i ++ ) {
+
+            jsonArray.add ( array [ i ].getName ( ).substring ( ( array [ i ].getName ( ).indexOf ( "Form" ) + 1 ) , array [ i ].getName ( ).indexOf ( ".txt" ) ) ) ;
+
+        }
+
+        return jsonArray ;
+    }
+
+
+
+
+
+
     @RequestMapping("/saveTem")
     public String saveTem(@RequestBody Map map){
 
         String first = (String)map.get("temName");
         String second = (String)map.get("TemText");
 
-        String path = "G:\\Form\\";
+        String path = "G:\\Form\\Tem\\";
         System.out.println();
         //检查是否存在同名文件start
         File file1 = new File(path);
@@ -98,9 +129,9 @@ public class temController {
         File[] array = file1.listFiles();
         ArrayList<String> list = new ArrayList<String>();
         for(int i=0;i<array.length;i++){
-            if(array[i].isFile()){
-                if(array[i].getName().equals((String)map.get("temName") + ".txt")){
-                    System.out.println("文件名重复，文件已存在");
+            if(array[i].isFile()) {
+                if ( array[i].getName().equals((String)map.get("temName") + ".txt" ) ) {
+                    System.out.println ( "文件名重复，文件已存在" ) ;
                     return "2"; //文件重名
                 }
             }
@@ -119,10 +150,10 @@ public class temController {
             return "1"; //创建文件失败
         }
 
-        try{
+        try {
             FileOutputStream fos = new FileOutputStream(file);
             fos.write(content.getBytes());
-        } catch (Exception e){
+        } catch ( Exception e ) {
             System.out.println("向文件写入内容失败");
         }
 
@@ -142,7 +173,7 @@ public class temController {
 
 
 
-        String textPath = "G:\\Form\\res.txt" ;
+        String textPath = "G:\\Form\\Tem\\res.txt" ;
         File file = new File( textPath ) ;
 
 
@@ -150,22 +181,26 @@ public class temController {
 
 
         try{
+
             file.createNewFile();
+
         } catch (Exception e){
+
             System.out.println("创建文件失败");
             return false ; //创建文件失败
+
         }
 
         try{
+
             FileOutputStream fos = new FileOutputStream(file);
             fos.write(res.getBytes());
+
         } catch (Exception e){
+
             System.out.println("向文件写入内容失败");
+
         }
-
-
-
-
 
         return true ;
 

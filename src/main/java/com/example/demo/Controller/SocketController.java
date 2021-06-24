@@ -13,13 +13,11 @@ import net.sf.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.*;
 import java.io.*;
 import java.math.BigDecimal;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,10 +48,10 @@ public class SocketController {
     BufferedInputStream bufferedInputStream;
     BufferedOutputStream bufferedOutputStream;
     String CardType = "";
-    int scoreRecord [ ] = new int [ 110 ] ;
+    double scoreRecord [ ] = new double [ 110 ] ;
     char ans [ ] = new char [ 110 ] ;
     int corNum [ ] = new int [ 110 ] ;
-    int scoreSum = 0 ;
+    double scoreSum = 0 ;
     int perNum = 0 ;
     int sum = 0 ;
     String std_ans = "" ;
@@ -153,7 +151,7 @@ public class SocketController {
         String s_for_use =s.substring(0, s.indexOf("型"));
         CardType = s_for_use;
         System.out.println("CardType:" + CardType);
-        String file_path = "G:\\Form\\" + s_for_use + ".txt";
+        String file_path = "G:\\Form\\Tem\\" + s_for_use + ".txt";
         System.out.println(file_path);
         readFile r = new readFile();
         r.get_template(file_path);
@@ -212,7 +210,7 @@ public class SocketController {
         String s = (String) map.keySet().iterator().next();
         System.out.println(s);
         String s_for_use =s.substring(0, s.indexOf("型"));
-        String file_path = "G:\\Form\\" + s_for_use + ".txt";
+        String file_path = "G:\\Form\\Tem\\" + s_for_use + ".txt";
         System.out.println(file_path);
         readFile r = new readFile();
         r.get_template(file_path);
@@ -238,7 +236,7 @@ public class SocketController {
         String s = (String) map.keySet().iterator().next();
         System.out.println(s);
         String s_for_use =s.substring(0, s.indexOf("型"));
-        String file_path = "G:\\Form\\" + s_for_use + ".txt";
+        String file_path = "G:\\Form\\Tem\\" + s_for_use + ".txt" ;
         System.out.println(file_path);
         getTem r = new getTem();
         try{
@@ -251,10 +249,6 @@ public class SocketController {
         return res;
     }
 
-//    @RequestMapping("/setScore")
-//    public void setScore(){
-//
-//    }
 
     //设置标准答案读卡1次
     @RequestMapping("/read_once")
@@ -914,20 +908,21 @@ public class SocketController {
         char[] ans_charArray = ans.toCharArray();
 
         String name = "";
-        int int_score = 0;
+        double double_score = 0;
         for( int i = 0 ; i < std_ans_charArray.length ; i ++ ) {
 
             if ( std_ans_charArray[ i ] == ans_charArray [ i ] && ans_charArray [ i ] != '.' ) {
 
                 corRateInt [ i ] ++ ;
-                int_score += scoreRecord [ i + 1 ];
+                double_score += scoreRecord [ i + 1 ];
 
             }
 
         }
-        System.out.println("该答题卡分数：" + int_score);
+        double_score = new BigDecimal(double_score).setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue() ;
+        System.out.println("该答题卡分数：" + double_score);
 
-        scoreSum += int_score ;
+        scoreSum += double_score ;
 
 
 
@@ -937,7 +932,7 @@ public class SocketController {
 
 
 
-        score.setScore(int_score);
+        score.setScore ( double_score );
         score.setAnswer(ans);
         System.out.println("该学生的学号：" + stuId);
         System.out.println(stuId);
@@ -954,7 +949,8 @@ public class SocketController {
         Rank rank = new Rank( ) ;
         rank.setName ( name ) ;
         rank.setStuId ( stuId ) ;
-        rank.setScore ( int_score ) ;
+        rank.setScore (double_score) ;
+        rank.setAns ( ans ) ;
         rankService.saveRank ( rank ) ;
 
 
@@ -1139,7 +1135,7 @@ public class SocketController {
             System.out.println( "第二个数据：  " + second );
             String scoreToCom = useToScore.substring( useToScore.indexOf( "分" ) - 2 , useToScore.indexOf( "分" ) );
             scoreToCom = scoreToCom.replace( ' ' , '0' ) ;
-            int scoreToUse = Integer.parseInt( scoreToCom ) ;
+            double scoreToUse = Double.parseDouble( scoreToCom ) ;
             System.out.println( "分数：  " + scoreToUse );
             int ii = first ;
             for (  ; ii <= second ; ii ++ ) {
@@ -1209,7 +1205,6 @@ public class SocketController {
 
 
 
-
     @RequestMapping ( "/averageScore" )
     @ResponseBody
 
@@ -1229,7 +1224,6 @@ public class SocketController {
         return String.format ( "%.4f" , resNum )  ;
 
     }
-
 
 
 
@@ -1266,15 +1260,28 @@ public class SocketController {
     }
 
 
+
     @RequestMapping ( "/forRank")
     @ResponseBody
     public List < Rank > rank ( ) {
 
         List < Rank > list = rankService.findByScore ( ) ;
+        System.out.println ( list ) ;
 
         return list ;
 
     }
 
+
+
+    @RequestMapping ( "/deleteAllRank" )
+    @ResponseBody
+    public boolean deleteAllRank ( ) {
+
+        rankService.deleteAllRank() ;
+
+        return true ;
+
+    }
 
 }

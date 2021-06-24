@@ -22,6 +22,9 @@ public class Rank {
     private String stuId;
 
     @Column(name="score")
-    private Integer score;
+    private Double score;
+
+    @Column(name="ans")
+    private String ans;
 
 }

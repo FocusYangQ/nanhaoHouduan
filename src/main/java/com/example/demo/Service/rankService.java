@@ -35,4 +35,11 @@ public class rankService {
         return rank ;
     }
 
+    public boolean deleteAllRank ( ) {
+
+        rankRepository.deleteAll();
+        return true ;
+
+    }
+
 }
