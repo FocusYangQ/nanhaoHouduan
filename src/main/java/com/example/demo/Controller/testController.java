@@ -3,10 +3,7 @@ package com.example.demo.Controller;
 import com.example.demo.Component.Connect;
 import com.example.demo.Component.Guangbiao.*;
 import com.example.demo.Entity.*;
-import com.example.demo.Service.IpService;
-import com.example.demo.Service.Std_ansService;
-import com.example.demo.Service.Stu_id_nameService;
-import com.example.demo.Service.UserService;
+import com.example.demo.Service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import net.sf.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +30,9 @@ public class testController {
     @Autowired
     IpService ipService;
 
+    @Autowired
+    confirmService confirmService;
+
     int port=8989;
 
     @RequestMapping("/connect")
@@ -52,6 +52,46 @@ public class testController {
         if(u.getPwd().equals(pwd)) return true;
         return false;
     }
+
+
+
+
+    @RequestMapping("/p")
+    public boolean p() {
+
+        confirm p = new confirm( ) ;
+        p.setMark ( "true" ); ;
+        confirmService.p ( p ) ;
+
+        return true;
+    }
+
+    @RequestMapping("/v")
+    public boolean v() {
+
+        System.out.println("v");
+        confirmService.v () ;
+
+        return true ;
+
+    }
+
+    @RequestMapping("/testUser")
+    public boolean testUser() {
+
+        List < confirm > list = confirmService.select ( ) ;
+
+        if ( list.isEmpty() ) {
+            return true ;
+        } else {
+            return false ;
+        }
+
+    }
+
+
+
+
 
     @RequestMapping("/read")
     public JSONArray read() throws JsonProcessingException {
